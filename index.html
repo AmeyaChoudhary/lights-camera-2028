@@ -973,9 +973,9 @@ DATA.forEach((q, qi) => {
 
   let chartHTML = '';
   const maxVal = q.data[0][1];
-  const top12 = q.data.slice(0, 12);
-  const topVotes = top12.reduce((s,d) => s+d[1], 0);
-  const otherVotes = q.responses - topVotes;
+  const shown = q.data.filter(d => d[1] >= 2);
+  const shownVotes = shown.reduce((s,d) => s+d[1], 0);
+  const otherVotes = q.responses - shownVotes;
 
   function buildBarRows(data, maxV, colorFn) {
     let rows = data.map((d,i) => `
@@ -1026,8 +1026,8 @@ DATA.forEach((q, qi) => {
       </div>
       <div class="h2h-note">${h2hNote}</div>
       <div class="chart-area">
-        <div class="chart-label">Top ${Math.min(top12.length, 12)}</div>
-        <div class="bar-chart">${buildBarRows(top12, maxVal, i => i===0?'var(--accent-pink)':i===1?'var(--accent-blue)':COLORS_POOL[(i+2)%COLORS_POOL.length])}
+        <div class="chart-label">Everyone with 2+ votes</div>
+        <div class="bar-chart">${buildBarRows(shown, maxVal, i => i===0?'var(--accent-pink)':i===1?'var(--accent-blue)':COLORS_POOL[(i+2)%COLORS_POOL.length])}
         </div>
       </div>`;
   } else if (q.chartType === 'donut') {
@@ -1078,8 +1078,8 @@ DATA.forEach((q, qi) => {
       </div>
       ${q.tag ? `<div class="h2h-note">${q.tag}</div>` : ''}
       <div class="chart-area">
-        <div class="chart-label">Top ${Math.min(top12.length, 12)}</div>
-        <div class="bar-chart">${buildBarRows(top12, maxVal, i => COLORS_POOL[i%COLORS_POOL.length])}
+        <div class="chart-label">Everyone with 2+ votes</div>
+        <div class="bar-chart">${buildBarRows(shown, maxVal, i => COLORS_POOL[i%COLORS_POOL.length])}
         </div>
       </div>`;
   }
