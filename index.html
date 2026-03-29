@@ -798,7 +798,7 @@ const DATA = [
   {
     id: 'q1', num: 1, category: 'Superlative #1',
     title: 'Funniest Duo',
-    responses: 92,
+    responses: 89,
     winner: 'Stephen & Marloe',
     winnerVotes: 17,
     color: '#FF6B9D',
@@ -806,16 +806,16 @@ const DATA = [
     data: [
       ['Stephen & Marloe', 17], ['Hongkang & Ido', 5], ['Edmund & Justin', 4],
       ['Lettuce & Ashley', 4], ['Eva & Michael P', 3], ['Rohil & Onslow', 3],
-      ['Nathan & Aden', 3], ['Chinkov & Chinkov', 3],
-      ['Christina & Miley', 2], ['Anusha & Liana', 2], ['Janchit', 2],
+      ['Nathan & Aden', 3],
+      ['Christina & Miley', 2], ['Anusha & Liana', 2], ['Jonny & Anchit', 2],
       ['Julia & Kailin', 2], ['Edmund & Dennis', 2], ['Gary & Rishik', 2],
       ['Aden & Yicheng', 2], ['Alex & Teddy', 2], ['Riya & Ellen', 2],
       ['Deka & Crichton', 2], ['Michael & Rohil', 2]
     ],
     allWords: [
       ['Stephen & Marloe',17],['Hongkang & Ido',5],['Edmund & Justin',4],['Lettuce & Ashley',4],
-      ['Eva & Michael P',3],['Rohil & Onslow',3],['Nathan & Aden',3],['Chinkov & Chinkov',3],
-      ['Christina & Miley',2],['Anusha & Liana',2],['Janchit',2],['Julia & Kailin',2],
+      ['Eva & Michael P',3],['Rohil & Onslow',3],['Nathan & Aden',3],
+      ['Christina & Miley',2],['Anusha & Liana',2],['Jonny & Anchit',2],['Julia & Kailin',2],
       ['Edmund & Dennis',2],['Gary & Rishik',2],['Aden & Yicheng',2],['Alex & Teddy',2],
       ['Riya & Ellen',2],['Deka & Crichton',2],['Michael & Rohil',2],
       ['Abby & Kendra',1],['Angela & Kavya',1],['Aubrie & Isabel',1],['Aydin & Guru',1],
@@ -830,11 +830,13 @@ const DATA = [
   {
     id: 'q2', num: 2, category: 'Superlative #2',
     title: 'Class Clown',
+    tag: 'Another tight one — just 2 votes apart',
     responses: 105,
     winner: 'Jerry Dickerson',
     winnerVotes: 16,
     color: '#FBBF24',
-    chartType: 'bar',
+    chartType: 'h2h',
+    h2h: { left: { name: 'Jerry Dickerson', votes: 16 }, right: { name: 'Stephen Summers', votes: 14 }},
     data: [
       ['Jerry Dickerson', 16], ['Stephen Summers', 14], ['Michael Chinkov', 9],
       ['Ido', 8], ['Hongkang Zhao', 7], ['Edmund Wang', 6],
@@ -855,7 +857,7 @@ const DATA = [
   {
     id: 'q3', num: 3, category: 'Superlative #3',
     title: 'Future Influencer',
-    responses: 106,
+    responses: 104,
     winner: 'Miley Liu',
     winnerVotes: 21,
     color: '#A855F7',
@@ -864,14 +866,14 @@ const DATA = [
       ['Miley Liu', 21], ['Onslow Newman', 6], ['Ido Eyal', 5],
       ['Angus Wang', 4], ['Avi Gupta', 4], ['Crichton Rockwell', 4],
       ['Justin Hu', 4], ['Alrisha Chen', 4], ['Kanav Gupta', 3],
-      ['Daniel Xi', 2], ['Saria Lum', 2], ['Amber', 2], ['Brightrise', 2],
+      ['Daniel Xi', 2], ['Saria Lum', 2], ['Amber', 2],
       ['Bryan Ma', 2], ['Ashley', 2], ['Jonathan Sun', 2],
       ['Lettuce', 2], ['Isabella P', 2], ['Diya D', 2]
     ],
     allWords: [
       ['Miley Liu',21],['Onslow Newman',6],['Ido Eyal',5],['Angus Wang',4],['Avi Gupta',4],
       ['Crichton Rockwell',4],['Justin Hu',4],['Alrisha Chen',4],['Kanav Gupta',3],
-      ['Daniel Xi',2],['Saria Lum',2],['Amber',2],['Brightrise',2],['Bryan Ma',2],
+      ['Daniel Xi',2],['Saria Lum',2],['Amber',2],['Bryan Ma',2],
       ['Ashley',2],['Jonathan Sun',2],['Lettuce',2],['Isabella P',2],['Diya D',2],
       ['Abby',1],['Abby Cheng',1],['Abigail Liu',1],['Alexander Maxim',1],['Ameya C',1],
       ['Asryan',1],['Aubrie Su',1],['Ava Ding',1],['Boxuan',1],['Christian',1],
@@ -920,7 +922,7 @@ const DATA = [
     id: 'q5', num: 5, category: 'Superlative #5',
     title: 'Most Likely to Become President',
     tag: 'Closest race of the night',
-    responses: 111,
+    responses: 110,
     winner: 'Amber Wang',
     winnerVotes: 33,
     color: '#FF6B9D',
@@ -937,7 +939,7 @@ const DATA = [
       ['Angus Wang',1],['Aydin Mesic',1],['Christian',1],['Daniel Xi',1],
       ['Edmund Wang',1],['Hongkang Zhao',1],['Ishaan DP',1],
       ['Jillian Chen',1],['Jonny',1],['Justin Hu',1],['Madelene Hu',1],
-      ['Michael Chinkov',1],['Nathan Mao',1],['Neev',1],['Presley',1],
+      ['Michael Chinkov',1],['Nathan Mao',1],['Neev',1],
       ['Teddy',1],['Teresa',1]
     ]
   },
@@ -1176,11 +1178,12 @@ DATA.forEach((q, qi) => {
       </div>`;
   }
 
-  // Word cloud
+  // Word cloud — use log scale so 1-vote names are still readable
   const maxW = q.allWords[0][1];
   const cloudHTML = q.allWords.map((w, i) => {
-    const size = Math.max(0.7, (w[1] / maxW) * 2.8);
-    const opacity = Math.max(0.35, (w[1] / maxW) * 0.9 + 0.1);
+    const ratio = Math.log(w[1] + 1) / Math.log(maxW + 1);
+    const size = Math.max(0.75, ratio * 2.8);
+    const opacity = Math.max(0.45, ratio * 0.55 + 0.45);
     const color = COLORS_POOL[i % COLORS_POOL.length];
     return `<span class="cloud-word" style="font-size:${size}rem;color:${color};--word-opacity:${opacity};transition-delay:${i * 0.03}s" title="${w[0]}: ${w[1]} votes">${w[0]}</span>`;
   }).join(' ');
