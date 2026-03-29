@@ -685,12 +685,58 @@
 
   /* ===== RESPONSIVE ===== */
   @media (max-width: 768px) {
-    .section { padding: 100px 4vw 60px; }
-    .bar-label { width: 110px; font-size: 0.8rem; }
-    .h2h { flex-direction: column; min-height: auto; }
+    .hero-title { font-size: 3rem; }
+    .hero-subtitle { font-size: 0.8rem; letter-spacing: 4px; }
+    .hero-tagline { font-size: 0.95rem; }
+    .hero-meta { font-size: 0.9rem; }
+
+    .section { padding: 80px 4vw 50px; min-height: auto; }
+    .section-number { font-size: 5rem; top: 60px; right: 3vw; }
+    .section-title { font-size: 1.8rem; }
+    .section-category { font-size: 0.75rem; letter-spacing: 3px; }
+
+    .bar-label { width: 90px; font-size: 0.7rem; }
+    .bar-rank { width: 22px; font-size: 0.75rem; }
+    .bar-track { height: 26px; }
+    .bar-value { font-size: 0.7rem; }
+    .bar-row { gap: 6px; }
+    .chart-label { font-size: 0.7rem; }
+
+    .winner-name { font-size: 1.5rem; }
+    .winner-votes { font-size: 0.9rem; }
+    .winner-votes strong { font-size: 1.1rem; }
+    .winner-badge { padding: 8px 20px; }
+
+    .h2h { flex-direction: column; min-height: auto; gap: 2px; border-radius: 12px; }
     .h2h-vs { display: none; }
-    .donut-container { flex-direction: column; }
-    .nav a { font-size: 0.65rem; padding: 5px 8px; }
+    .h2h-side { padding: 1.5rem 1rem; }
+    .h2h-name { font-size: 1.3rem; }
+    .h2h-count { font-size: 2.5rem; }
+    .h2h-note { font-size: 0.8rem; margin-top: -0.5rem; }
+
+    .donut-container { flex-direction: column; gap: 1.5rem; }
+    .donut-svg { width: 220px; height: 220px; }
+    .legend-item { font-size: 0.8rem; }
+
+    .word-cloud { gap: 6px 10px; padding: 1rem; }
+
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .stat-card { padding: 1rem; }
+    .stat-value { font-size: 1.2rem; }
+
+    .footer { padding: 2rem 1rem; }
+    .footer .title { font-size: 1rem; }
+    .footer p { font-size: 0.75rem; }
+  }
+
+  @media (max-width: 400px) {
+    .hero-title { font-size: 2.4rem; }
+    .bar-label { width: 75px; font-size: 0.65rem; }
+    .bar-track { height: 22px; }
+    .section-title { font-size: 1.5rem; }
+    .h2h-name { font-size: 1.1rem; }
+    .h2h-count { font-size: 2rem; }
+    .winner-name { font-size: 1.3rem; }
   }
 
   /* ===== CONFETTI ===== */
