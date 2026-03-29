@@ -830,7 +830,7 @@ const DATA = [
   {
     id: 'q2', num: 2, category: 'Superlative #2',
     title: 'Class Clown',
-    tag: 'Another tight one — just 2 votes apart',
+    tag: 'Tight one! 2 votes apart',
     responses: 105,
     winner: 'Jerry Dickerson',
     winnerVotes: 16,
@@ -921,7 +921,7 @@ const DATA = [
   {
     id: 'q5', num: 5, category: 'Superlative #5',
     title: 'Most Likely to Become President',
-    tag: 'Closest race of the night',
+    tag: 'Closest battle of the night',
     responses: 110,
     winner: 'Amber Wang',
     winnerVotes: 33,
@@ -1252,11 +1252,7 @@ const observer = new IntersectionObserver((entries) => {
       }, 30);
     });
 
-    // Confetti for Q5 (the tie!)
-    if (el.id === 'q5' && !el.dataset.confettied) {
-      el.dataset.confettied = 'true';
-      setTimeout(() => launchConfetti(), 800);
-    }
+
   });
 }, { threshold: 0.2 });
 
