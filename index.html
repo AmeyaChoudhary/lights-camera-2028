@@ -602,29 +602,49 @@
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 8px 14px;
-    max-width: 800px;
-    padding: 2rem;
+    gap: 6px 12px;
+    width: 100%;
+    max-width: 840px;
     margin-top: 2rem;
+    padding: 2.5rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 28px;
+    box-shadow: inset 0 0 40px rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
   }
 
   .cloud-word {
+    display: inline-block;
     opacity: 0;
-    transform: scale(0.5);
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: rotate(var(--word-rotate, 0deg)) scale(0.5);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease, filter 0.25s ease;
     cursor: default;
-    line-height: 1.2;
-    font-weight: 600;
+    line-height: 1.1;
+    font-weight: 700;
+    padding: 0.2em 0.35em;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.06);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+    white-space: nowrap;
+    letter-spacing: 0.01em;
   }
 
   .cloud-word.visible {
     opacity: var(--word-opacity);
-    transform: scale(1);
+    transform: rotate(var(--word-rotate, 0deg)) scale(1);
   }
 
   .cloud-word:hover {
     opacity: 1 !important;
-    transform: scale(1.15);
+    transform: rotate(var(--word-rotate, 0deg)) scale(1.2);
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.18));
+  }
+
+  .cloud-word.vertical {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    padding: 0.25em 0.2em;
   }
 
   /* ===== STATS GRID ===== */
@@ -1180,12 +1200,19 @@ DATA.forEach((q, qi) => {
 
   // Word cloud — use log scale so 1-vote names are still readable
   const maxW = q.allWords[0][1];
+  // Seeded pseudo-random so rotations stay stable across re-renders
+  let seed = q.question.length * 7 + q.allWords.length;
+  const sRand = () => { seed = (seed * 16807 + 11) % 2147483647; return seed / 2147483647; };
   const cloudHTML = q.allWords.map((w, i) => {
     const ratio = Math.log(w[1] + 1) / Math.log(maxW + 1);
-    const size = Math.max(0.75, ratio * 2.8);
+    const size = Math.max(0.8, ratio * 3);
     const opacity = Math.max(0.45, ratio * 0.55 + 0.45);
     const color = COLORS_POOL[i % COLORS_POOL.length];
-    return `<span class="cloud-word" style="font-size:${size}rem;color:${color};--word-opacity:${opacity};transition-delay:${i * 0.03}s" title="${w[0]}: ${w[1]} votes">${w[0]}</span>`;
+    const r = sRand();
+    const rot = r < 0.2 ? 90 : r < 0.35 ? -90 : Math.round((sRand() - 0.5) * 16);
+    const isVert = rot === 90 || rot === -90;
+    const weight = ratio > 0.7 ? 800 : ratio > 0.4 ? 700 : 600;
+    return `<span class="cloud-word${isVert ? ' vertical' : ''}" style="font-size:${size}rem;color:${color};--word-opacity:${opacity};--word-rotate:${rot}deg;font-weight:${weight};transition-delay:${i * 0.04}s" title="${w[0]}: ${w[1]} votes">${w[0]}</span>`;
   }).join(' ');
 
   sec.innerHTML = `
