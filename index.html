@@ -1201,7 +1201,7 @@ DATA.forEach((q, qi) => {
   // Word cloud — use log scale so 1-vote names are still readable
   const maxW = q.allWords[0][1];
   // Seeded pseudo-random so rotations stay stable across re-renders
-  let seed = q.question.length * 7 + q.allWords.length;
+  let seed = q.title.length * 7 + q.allWords.length;
   const sRand = () => { seed = (seed * 16807 + 11) % 2147483647; return seed / 2147483647; };
   const cloudHTML = q.allWords.map((w, i) => {
     const ratio = Math.log(w[1] + 1) / Math.log(maxW + 1);
