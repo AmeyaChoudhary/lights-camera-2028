@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lights, Camera, 2028</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #FFD700;
+    --gold-light: #FFE55C;
+    --gold-dark: #C5A000;
+    --bg-dark: #0a0a0f;
+    --bg-card: #12121a;
+    --bg-card-hover: #1a1a28;
+    --text-primary: #f0f0f0;
+    --text-secondary: #8888a0;
+    --accent-pink: #FF6B9D;
+    --accent-blue: #4ECDC4;
+    --accent-purple: #A855F7;
+    --accent-orange: #FF8C42;
+    --accent-green: #34D399;
+    --accent-red: #EF4444;
+    --accent-cyan: #22D3EE;
+    --accent-yellow: #FBBF24;
+    --accent-indigo: #818CF8;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
+  }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+
+  .hero, .slide, .footer { scroll-snap-align: start; scroll-snap-stop: always; }
+
+  /* ===== HERO ===== */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(ellipse at 50% 50%, rgba(255,215,0,0.08) 0%, transparent 60%);
+    animation: heroGlow 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes heroGlow {
+    0% { transform: scale(1) rotate(0deg); }
+    100% { transform: scale(1.1) rotate(5deg); }
+  }
+
+  .hero-stars {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  .star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--dur) ease-in-out infinite alternate;
+    opacity: 0;
+  }
+
+  @keyframes twinkle {
+    0% { opacity: 0; transform: scale(0.5); }
+    100% { opacity: var(--max-opacity); transform: scale(1); }
+  }
+
+  .hero-content {
+    text-align: center;
+    z-index: 2;
+    animation: fadeInUp 1.5s ease-out;
+  }
+
+  .hero-subtitle {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--gold), #fff8dc, var(--gold-dark), var(--gold-light));
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s ease-in-out infinite;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .hero-tagline {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.15rem;
+    color: rgba(255,255,255,0.5);
+    font-weight: 300;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.5px;
+  }
+
+  .hero-meta {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+    font-weight: 300;
+  }
+
+  .hero-meta span {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  .scroll-indicator {
+    position: absolute;
+    bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    animation: bounce 2s ease-in-out infinite;
+    cursor: pointer;
+  }
+
+  .scroll-indicator .arrow {
+    width: 20px; height: 20px;
+    border-right: 2px solid var(--gold);
+    border-bottom: 2px solid var(--gold);
+    transform: rotate(45deg);
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== SIDE NAV ===== */
+  .sidenav {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+
+  .sidenav.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sidenav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .sidenav-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: transparent;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    background: rgba(10,10,15,0.9);
+    backdrop-filter: blur(10px);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+
+  .sidenav-item:hover .sidenav-label,
+  .sidenav-item.active .sidenav-label {
+    color: var(--text-primary);
+    border-color: rgba(255,215,0,0.2);
+  }
+
+  .sidenav-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.2);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .sidenav-item:hover .sidenav-dot {
+    background: rgba(255,215,0,0.4);
+    border-color: var(--gold);
+    transform: scale(1.3);
+  }
+
+  .sidenav-item.active .sidenav-dot {
+    background: var(--gold);
+    border-color: var(--gold);
+    box-shadow: 0 0 8px rgba(255,215,0,0.5);
+    transform: scale(1.3);
+  }
+
+  @media (max-width: 768px) {
+    .sidenav { right: 10px; gap: 4px; }
+    .sidenav-label { display: none; }
+    .sidenav-dot { width: 8px; height: 8px; }
+  }
+
+  /* ===== SLIDES ===== */
+  .slide {
+    min-height: 100vh;
+    height: 100vh;
+    padding: 70px 5vw 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow-y: auto;
+  }
+
+  .slide.slide-chart { justify-content: flex-start; padding-top: 70px; }
+  .slide.slide-cloud { justify-content: center; }
+
+  /* Compact spacing inside chart slide */
+  .slide-chart .winner-spotlight { margin-bottom: 1.5rem; }
+  .slide-chart .winner-badge { padding: 8px 22px; margin-bottom: 0.5rem; }
+  .slide-chart .winner-name { font-size: clamp(1.5rem, 3vw, 2.2rem); }
+  .slide-chart .h2h { min-height: 200px; margin-bottom: 1.5rem; }
+  .slide-chart .h2h-side { padding: 1.5rem 1.5rem; }
+  .slide-chart .h2h-count { font-size: 2.8rem; }
+  .slide-chart .bar-chart { gap: 6px; }
+  .slide-chart .bar-track { height: 26px; }
+  .slide-chart .chart-label { margin-bottom: 0.5rem; }
+
+  /* Big centered title card */
+  .slide-title {
+    text-align: center;
+  }
+  .slide-title .section-category {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .slide-title h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #fff, var(--gold-light), var(--gold));
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 5s ease-in-out infinite;
+  }
+  .slide-title .section-responses {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .slide-title .slide-tag {
+    margin-top: 1.5rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  /* Cloud / chart slide compact header */
+  .slide-mini-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .slide-mini-header .mini-cat {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.4rem;
+  }
+  .slide-mini-header .mini-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    font-weight: 700;
+  }
+  .slide-mini-header .mini-sub {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.3rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Section uses old name for compatibility - keep as alias */
+  .section {
+    min-height: 100vh;
+    padding: 120px 5vw 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  .section-number {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(6rem, 15vw, 12rem);
+    font-weight: 900;
+    position: absolute;
+    top: 80px;
+    right: 5vw;
+    color: rgba(255,215,0,0.04);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    z-index: 2;
+  }
+
+  .section-category {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .section-responses {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  /* ===== WINNER PODIUM ===== */
+  .winner-spotlight {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 3rem;
+    z-index: 2;
+  }
+
+  .winner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05));
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 50px;
+    padding: 12px 32px;
+    margin-bottom: 1rem;
+  }
+
+  .winner-badge .trophy { font-size: 1.5rem; }
+
+  .winner-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .winner-votes {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+  }
+
+  .winner-votes strong {
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 1.3rem;
+  }
+
+  /* ===== CHART CONTAINER ===== */
+  .chart-area {
+    width: 100%;
+    max-width: 900px;
+    z-index: 2;
+  }
+
+  /* ===== BAR CHART ===== */
+  .bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .bar-row.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .bar-rank {
+    width: 28px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+
+  .bar-row:nth-child(1) .bar-rank { color: var(--gold); font-size: 1rem; }
+  .bar-row:nth-child(2) .bar-rank { color: #C0C0C0; }
+  .bar-row:nth-child(3) .bar-rank { color: #CD7F32; }
+
+  .bar-label {
+    width: 160px;
+    text-align: right;
+    font-size: 0.9rem;
+    font-weight: 500;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 32px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    min-width: 40px;
+  }
+
+  .bar-fill.animated { width: var(--target-width); }
+
+  .bar-value {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: rgba(0,0,0,0.7);
+    white-space: nowrap;
+  }
+
+  .bar-fill-light .bar-value { color: rgba(0,0,0,0.8); }
+  .bar-fill-dark .bar-value { color: rgba(255,255,255,0.9); }
+
+  .chart-label {
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    text-align: left;
+    width: 100%;
+  }
+
+  .bar-row.other-row .bar-label {
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  .bar-row.other-row .bar-fill {
+    background: #444 !important;
+    opacity: 0.6;
+  }
+
+  /* ===== DONUT CHART ===== */
+  .donut-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .donut-svg {
+    width: 280px;
+    height: 280px;
+    transform: rotate(-90deg);
+  }
+
+  .donut-segment {
+    fill: none;
+    stroke-width: 35;
+    stroke-dasharray: 0 1000;
+    transition: stroke-dasharray 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .legend-name { font-weight: 500; }
+  .legend-count { color: var(--text-secondary); font-weight: 300; }
+
+  /* ===== HEAD TO HEAD ===== */
+  .h2h {
+    display: flex;
+    width: 100%;
+    max-width: 900px;
+    gap: 4px;
+    margin-bottom: 3rem;
+    border-radius: 16px;
+    overflow: hidden;
+    min-height: 280px;
+  }
+
+  .h2h-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: flex 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .h2h-left {
+    background: linear-gradient(135deg, rgba(255,107,157,0.15), rgba(255,107,157,0.05));
+    border: 1px solid rgba(255,107,157,0.2);
+  }
+
+  .h2h-right {
+    background: linear-gradient(135deg, rgba(78,205,196,0.15), rgba(78,205,196,0.05));
+    border: 1px solid rgba(78,205,196,0.2);
+  }
+
+  .h2h-vs {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--gold);
+    background: var(--bg-dark);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--gold);
+  }
+
+  .h2h-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+
+  .h2h-left .h2h-name { color: var(--accent-pink); }
+  .h2h-right .h2h-name { color: var(--accent-blue); }
+
+  .h2h-count {
+    font-size: 3.5rem;
+    font-weight: 900;
+    font-family: 'Space Grotesk', sans-serif;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .h2h-count.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .h2h-left .h2h-count { color: var(--accent-pink); }
+  .h2h-right .h2h-count { color: var(--accent-blue); }
+
+  .h2h-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+  }
+
+  .h2h-note {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-style: italic;
+    margin-top: -1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  /* ===== WORD CLOUD ===== */
+  .word-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: 4px 14px;
+    width: 100%;
+    max-width: 920px;
+    padding: 2rem 2.5rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    box-shadow: inset 0 0 40px rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    line-height: 1.15;
+  }
+
+  .cloud-word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    cursor: default;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+  }
+
+  .cloud-word.visible {
+    opacity: var(--word-opacity);
+    transform: translateY(0);
+  }
+
+  .cloud-word:hover {
+    opacity: 1 !important;
+    transform: translateY(-2px) scale(1.05);
+  }
+
+  /* ===== STATS GRID ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 900px;
+    margin-top: 2rem;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .stat-card:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(255,215,0,0.2);
+    transform: translateY(-4px);
+  }
+
+  .stat-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .footer .title {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold);
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .hero-title { font-size: 3rem; }
+    .hero-subtitle { font-size: 0.8rem; letter-spacing: 4px; }
+    .hero-tagline { font-size: 0.95rem; }
+    .hero-meta { font-size: 0.9rem; }
+
+    .section { padding: 80px 4vw 50px; min-height: auto; }
+    .section-number { font-size: 5rem; top: 60px; right: 3vw; }
+    .section-title { font-size: 1.8rem; }
+    .section-category { font-size: 0.75rem; letter-spacing: 3px; }
+
+    .bar-label { width: 90px; font-size: 0.7rem; }
+    .bar-rank { width: 22px; font-size: 0.75rem; }
+    .bar-track { height: 26px; }
+    .bar-value { font-size: 0.7rem; }
+    .bar-row { gap: 6px; }
+    .chart-label { font-size: 0.7rem; }
+
+    .winner-name { font-size: 1.5rem; }
+    .winner-votes { font-size: 0.9rem; }
+    .winner-votes strong { font-size: 1.1rem; }
+    .winner-badge { padding: 8px 20px; }
+
+    .h2h { flex-direction: column; min-height: auto; gap: 2px; border-radius: 12px; }
+    .h2h-vs { display: none; }
+    .h2h-side { padding: 1.5rem 1rem; }
+    .h2h-name { font-size: 1.3rem; }
+    .h2h-count { font-size: 2.5rem; }
+    .h2h-note { font-size: 0.8rem; margin-top: -0.5rem; }
+
+    .donut-container { flex-direction: column; gap: 1.5rem; }
+    .donut-svg { width: 220px; height: 220px; }
+    .legend-item { font-size: 0.8rem; }
+
+    .word-cloud { gap: 6px 10px; padding: 1rem; }
+
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .stat-card { padding: 1rem; }
+    .stat-value { font-size: 1.2rem; }
+
+    .footer { padding: 2rem 1rem; }
+    .footer .title { font-size: 1rem; }
+    .footer p { font-size: 0.75rem; }
+  }
+
+  @media (max-width: 400px) {
+    .hero-title { font-size: 2.4rem; }
+    .bar-label { width: 75px; font-size: 0.65rem; }
+    .bar-track { height: 22px; }
+    .section-title { font-size: 1.5rem; }
+    .h2h-name { font-size: 1.1rem; }
+    .h2h-count { font-size: 2rem; }
+    .winner-name { font-size: 1.3rem; }
+  }
+
+  /* ===== CONFETTI ===== */
+  .confetti-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 200;
+    overflow: hidden;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    top: -10px;
+    animation: confetti-fall linear forwards;
+  }
+
+  @keyframes confetti-fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-stars" id="stars"></div>
+  <div class="hero-content">
+    <div class="hero-subtitle">The '28 Council presents</div>
+    <h1 class="hero-title">Lights, Camera,<br>2028</h1>
+    <p class="hero-tagline">Results from our class meeting superlatives game</p>
+    <p class="hero-meta"><span>125</span> players &bull; <span>9</span> categories &bull; March 27, 2026</p>
+  </div>
+  <div class="scroll-indicator" onclick="document.getElementById('q1').scrollIntoView({behavior:'smooth'})">
+    <span>Scroll</span>
+    <div class="arrow"></div>
+  </div>
+</section>
+
+<!-- SIDE NAV -->
+<nav class="sidenav" id="sidenav"></nav>
+
+<!-- SECTIONS (built by JS) -->
+<div id="sections"></div>
+
+
+<footer class="footer">
+  <div class="title">Lights, Camera, 2028</div>
+  <p>Class Superlatives &bull; March 27, 2026 &bull; 125 Players</p>
+</footer>
+
+<script>
+// ===== DATA =====
+const DATA = [
+  {
+    id: 'q1', num: 1, category: 'Superlative #1',
+    title: 'Funniest Duo',
+    responses: 89,
+    winner: 'Stephen & Marloe',
+    winnerVotes: 17,
+    color: '#FF6B9D',
+    chartType: 'bar',
+    data: [
+      ['Stephen & Marloe', 17], ['Hongkang & Ido', 5], ['Edmund & Justin', 4],
+      ['Lettuce & Ashley', 4], ['Eva & Michael P', 3], ['Rohil & Onslow', 3],
+      ['Nathan & Aden', 3],
+      ['Christina & Miley', 2], ['Anusha & Liana', 2], ['Jonny & Anchit', 2],
+      ['Julia & Kailin', 2], ['Edmund & Dennis', 2], ['Gary & Rishik', 2],
+      ['Aden & Yicheng', 2], ['Alex & Teddy', 2], ['Riya & Ellen', 2],
+      ['Deka & Crichton', 2], ['Michael & Rohil', 2]
+    ],
+    allWords: [
+      ['Stephen & Marloe',17],['Hongkang & Ido',5],['Edmund & Justin',4],['Lettuce & Ashley',4],
+      ['Eva & Michael P',3],['Rohil & Onslow',3],['Nathan & Aden',3],
+      ['Christina & Miley',2],['Anusha & Liana',2],['Jonny & Anchit',2],['Julia & Kailin',2],
+      ['Edmund & Dennis',2],['Gary & Rishik',2],['Aden & Yicheng',2],['Alex & Teddy',2],
+      ['Riya & Ellen',2],['Deka & Crichton',2],['Michael & Rohil',2],
+      ['Abby & Kendra',1],['Angela & Kavya',1],['Aubrie & Isabel',1],['Aydin & Guru',1],
+      ['Aydin & Teddy',1],['Bhadra & Jessie',1],['Bhadra & Nikita',1],['Boxuan & Ido',1],
+      ['Broumas & Crichton',1],['Dyuthi & Bhadra',1],['Hongkang & Zavier',1],
+      ['Ido & Ameya',1],['Ido & Gary',1],['Isabella & Ashley',1],['Issac & James',1],
+      ['Jake & Aditya',1],['James & Aiden',1],['Johanna & Aarya',1],['Kanav & Vihaan',1],
+      ['Kayvion & Ido',1],['Leo & Nico',1],['Pax & Maddy',1],['Phoebe & Diya',1],
+      ['Ricardo & Woody',1],['Sai & Malachi',1],['Weston & Angus',1]
+    ]
+  },
+  {
+    id: 'q2', num: 2, category: 'Superlative #2',
+    title: 'Class Clown',
+    tag: 'Tight one! 2 votes apart',
+    responses: 105,
+    winner: 'Jerry Dickerson',
+    winnerVotes: 16,
+    color: '#FBBF24',
+    chartType: 'h2h',
+    h2h: { left: { name: 'Jerry Dickerson', votes: 16 }, right: { name: 'Stephen Summers', votes: 14 }},
+    data: [
+      ['Jerry Dickerson', 16], ['Stephen Summers', 14], ['Michael Chinkov', 9],
+      ['Ido', 8], ['Hongkang Zhao', 7], ['Edmund Wang', 6],
+      ['Guru', 5], ['Jake Yiu', 4], ['Kayvion', 3], ['Kanav Gupta', 3],
+      ['Justin', 3], ['Crichton Rockwell', 3], ['Marloe', 3],
+      ['Ricardo Sanchez', 3], ['Jonathan Sun', 2], ['Bryan Ma', 2]
+    ],
+    allWords: [
+      ['Jerry Dickerson',16],['Stephen Summers',14],['Michael Chinkov',9],['Ido',8],
+      ['Hongkang Zhao',7],['Edmund Wang',6],['Guru',5],['Jake Yiu',4],['Kayvion',3],
+      ['Kanav Gupta',3],['Justin',3],['Crichton Rockwell',3],['Marloe',3],
+      ['Ricardo Sanchez',3],['Jonathan Sun',2],['Bryan Ma',2],
+      ['Aarya',1],['Aden',1],['Ava Ding',1],['Avi',1],['Boxuan',1],['Deka',1],
+      ['Dyuthi',1],['Joey',1],['Kailin',1],['Mara P',1],['Neev',1],
+      ['Patricia Li',1],['Teddy Arnaudov',1],['Vihaan G',1]
+    ]
+  },
+  {
+    id: 'q3', num: 3, category: 'Superlative #3',
+    title: 'Future Influencer',
+    responses: 104,
+    winner: 'Miley Liu',
+    winnerVotes: 21,
+    color: '#A855F7',
+    chartType: 'bar',
+    data: [
+      ['Miley Liu', 21], ['Onslow Newman', 6], ['Ido Eyal', 5],
+      ['Angus Wang', 4], ['Avi Gupta', 4], ['Crichton Rockwell', 4],
+      ['Justin Hu', 4], ['Alrisha Chen', 4], ['Kanav Gupta', 3],
+      ['Daniel Xi', 2], ['Saria Lum', 2], ['Amber', 2],
+      ['Bryan Ma', 2], ['Ashley', 2], ['Jonathan Sun', 2],
+      ['Lettuce', 2], ['Isabella P', 2], ['Diya D', 2]
+    ],
+    allWords: [
+      ['Miley Liu',21],['Onslow Newman',6],['Ido Eyal',5],['Angus Wang',4],['Avi Gupta',4],
+      ['Crichton Rockwell',4],['Justin Hu',4],['Alrisha Chen',4],['Kanav Gupta',3],
+      ['Daniel Xi',2],['Saria Lum',2],['Amber',2],['Bryan Ma',2],
+      ['Ashley',2],['Jonathan Sun',2],['Lettuce',2],['Isabella P',2],['Diya D',2],
+      ['Abby',1],['Abby Cheng',1],['Abigail Liu',1],['Alexander Maxim',1],['Ameya C',1],
+      ['Asryan',1],['Aubrie Su',1],['Ava Ding',1],['Boxuan',1],['Christian',1],
+      ['Edmund Wang',1],['Elaine',1],['Elynn',1],['Faye Gu',1],['Hongkang Zhao',1],
+      ['Ishaan Dhillon-Patel',1],['Jillian Chen',1],['Kayvion',1],['Liana',1],
+      ['Lucas H',1],['Marc',1],['Neev',1],['Phoebe Chen',1],['Ricardo',1],
+      ['Sophia',1],['Sophia Woodhouse',1],['Sunny',1],['Teddy',1],['Vivaan',1],
+      ['Wanruo',1],['Yicheng Feng',1]
+    ]
+  },
+  {
+    id: 'q4', num: 4, category: 'Superlative #4',
+    title: 'Most Likely to Brighten Your Day',
+    responses: 108,
+    winner: 'Michael Chinkov',
+    winnerVotes: 7,
+    color: '#34D399',
+    chartType: 'donut',
+    data: [
+      ['Michael Chinkov', 7], ['Bhadra Pramod', 5], ['Kanav Gupta', 4],
+      ['Aria C', 4], ['Emma Zhou', 4], ['Jessie Cao', 4],
+      ['Dyuthi V', 3], ['Yicheng Feng', 3], ['Ava Ding', 3],
+      ['Mara Pistacchi', 3], ['Edmund Wang', 3], ['Chianshin Du', 3],
+      ['Michael Petrov', 2], ['Amber Wang', 2], ['Jerry', 3],
+      ['Jonathan Sun', 2], ['Smera Savadi', 2], ['Teddy Arnaudov', 2],
+      ['Teresa Song', 2], ['Haoqi Xu', 2], ['Mason Lam', 2]
+    ],
+    allWords: [
+      ['Michael Chinkov',7],['Bhadra Pramod',5],['Kanav Gupta',4],['Aria C',4],
+      ['Emma Zhou',4],['Jessie Cao',4],['Dyuthi V',3],['Yicheng Feng',3],
+      ['Ava Ding',3],['Mara Pistacchi',3],['Edmund Wang',3],['Chianshin Du',3],
+      ['Michael Petrov',2],['Amber Wang',2],['Jerry',3],['Jonathan Sun',2],
+      ['Smera Savadi',2],['Teddy Arnaudov',2],['Teresa Song',2],['Haoqi Xu',2],
+      ['Mason Lam',2],['Aarya',1],['Abby Liu',1],['Abella',1],['Aden',1],
+      ['Alrisha',1],['Ameya',1],['Angela Pang',1],['Ashley',1],['Aubrie',1],
+      ['Augusta',1],['Avi',1],['Charlene L',1],['Crichton Rockwell',1],
+      ['Daniel Xi',1],['Danny T',1],['Finn Westgate',1],['Gary Xu',1],['Guru',1],
+      ['Ido',1],['Isabella P',1],['Issac',1],['J Tang',1],['Jacob',1],
+      ['Julia',1],['Kailin',1],['Kavya S',1],['Kayvion',1],['Leo Denizen',1],
+      ['Lettuce',1],['Lily',1],['Lucas Huang',1],['Marc',1],['Medha Choudhry',1],
+      ['Neev',1],['Rishi',1],['Rohil',1],['Sai K',1],['Samantha Teachworth',1],
+      ['Hammy Hernandez',1],['Sofe Jalil',1],['Sophie Wu',1],['Terry Li',1],['Vihaan',1]
+    ]
+  },
+  {
+    id: 'q5', num: 5, category: 'Superlative #5',
+    title: 'Most Likely to Become President',
+    tag: 'Closest battle of the night',
+    responses: 110,
+    winner: 'Amber Wang',
+    winnerVotes: 33,
+    color: '#FF6B9D',
+    chartType: 'h2h',
+    h2h: { left: { name: 'Amber Wang', votes: 33 }, right: { name: 'Ameya Choudhary', votes: 31 }},
+    data: [
+      ['Amber Wang', 33], ['Ameya Choudhary', 31], ['Avi Gupta', 12],
+      ['Dyuthi V', 5], ['Haoqi Xu', 3], ['Ricardo Sanchez', 2],
+      ['Shreyas Karnam', 2], ['Bryan Ma', 2], ['Kanav', 2], ['Jerry', 2]
+    ],
+    allWords: [
+      ['Amber Wang',33],['Ameya Choudhary',31],['Avi Gupta',12],['Dyuthi V',5],
+      ['Haoqi Xu',3],['Ricardo Sanchez',2],['Shreyas Karnam',2],['Bryan Ma',2],['Kanav',2],['Jerry',2],
+      ['Angus Wang',1],['Aydin Mesic',1],['Christian',1],['Daniel Xi',1],
+      ['Edmund Wang',1],['Hongkang Zhao',1],['Ishaan DP',1],
+      ['Jillian Chen',1],['Jonny',1],['Justin Hu',1],['Madelene Hu',1],
+      ['Michael Chinkov',1],['Nathan Mao',1],['Neev',1],
+      ['Teddy',1],['Teresa',1]
+    ]
+  },
+  {
+    id: 'q6', num: 6, category: 'Superlative #6',
+    title: 'Most School Spirit',
+    responses: 117,
+    winner: 'Eva Petrova',
+    winnerVotes: 41,
+    color: '#4ECDC4',
+    chartType: 'bar',
+    data: [
+      ['Eva Petrova', 41], ['Christian Mehta', 16], ['Jillian Chen', 15],
+      ['Jessie V', 14], ['Christina Tian', 4], ['Haoqi Xu', 4],
+      ['Edmund Wang', 2], ['Andrew Shi', 2], ['Marloe', 2]
+    ],
+    allWords: [
+      ['Eva Petrova',41],['Christian Mehta',16],['Jillian Chen',15],['Jessie V',14],
+      ['Christina Tian',4],['Haoqi Xu',4],['Edmund Wang',2],['Andrew Shi',2],['Marloe',2],
+      ['Amber Wang',1],['Ameya',1],['Anastasia',1],['Aria Chada',1],
+      ['Crichton Rockwell',1],['Emma Zhou',1],['Ido Eyal',1],['Jeffrey',1],
+      ['Kavya',1],['Kayvion',1],['Neev',1],['Rishik',1],['Rohil',1],
+      ['Stephen',1],['Tanvi',1],['Teddy',1],['Yimo',1]
+    ]
+  },
+  {
+    id: 'q7', num: 7, category: 'Superlative #7',
+    title: 'Most Nonchalant',
+    tag: 'Most spread out category — no clear consensus',
+    responses: 96,
+    winner: 'Dyuthi V',
+    winnerVotes: 6,
+    color: '#818CF8',
+    chartType: 'donut',
+    data: [
+      ['Dyuthi V', 6], ['Rocky Jia', 5], ['Wanruo', 5], ['Gary Xu', 5],
+      ['Aditya Deka', 4], ['Joey', 4], ['Kanav Gupta', 4],
+      ['Jerry', 5], ['Jonathan Sun', 4],
+      ['Ava Ding', 3], ['Amy Chen', 3], ['Pax', 3],
+      ['Mason Lam', 2], ['Andrew Woon', 2], ['Isabel Yang', 2],
+      ['Michael Chinkov', 2], ['Rishik', 2], ['Shreyas', 2],
+      ['Anusha S', 2], ['Anastasia Broumas', 2]
+    ],
+    allWords: [
+      ['Dyuthi V',6],['Rocky Jia',5],['Wanruo',5],['Gary Xu',5],
+      ['Aditya Deka',4],['Joey',4],['Kanav Gupta',4],['Jerry',5],['Jonathan Sun',4],
+      ['Ava Ding',3],['Amy Chen',3],['Pax',3],
+      ['Mason Lam',2],['Andrew Woon',2],['Isabel Yang',2],['Michael Chinkov',2],
+      ['Rishik',2],['Shreyas',2],['Anusha S',2],['Anastasia Broumas',2],
+      ['Alex',1],['Amber Wee',1],['Ameya Choudhary',1],['Andrew P',1],
+      ['Avi Gupta',1],['Banwasi',1],['Boxuan',1],['Bryan Ma',1],
+      ['Christina Tian',1],['Crichton',1],['Daniel Xi',1],['Edmund Wang',1],
+      ['Elynn',1],['Guru',1],['Haoqi',1],['Hongkang Zhao',1],['Isabella P',1],
+      ['Ishita',1],['Kayvion',1],['Marc',1],['Matthew',1],['Michael J',1],
+      ['Neev',1],['Nysa',1],['Olivia',1],['Ossi Carrico',1],
+      ['Ricardo Sanchez',1],['Rishi',1],['Yicheng',1]
+    ]
+  },
+  {
+    id: 'q8', num: 8, category: 'Superlative #8',
+    title: 'Highest Screen Time',
+    responses: 109,
+    winner: 'Hongkang Zhao',
+    winnerVotes: 41,
+    color: '#FF8C42',
+    chartType: 'bar',
+    data: [
+      ['Hongkang Zhao', 41], ['Jerry Dickerson', 21], ['Haoqi Xu', 6],
+      ['Ido Eyal', 6], ['Angus Wang', 6], ['Bryan Ma', 5],
+      ['Arushi Mallick', 4], ['Adrian Jia', 2]
+    ],
+    allWords: [
+      ['Hongkang Zhao',41],['Jerry Dickerson',21],['Haoqi Xu',6],['Ido Eyal',6],
+      ['Angus Wang',6],['Bryan Ma',5],['Arushi Mallick',4],['Adrian Jia',2],
+      ['Aarya',1],['Aiden Lei',1],['Anastasia',1],['Annie',1],['Aubrie',1],
+      ['Chianshin',1],['Daniel Xi',1],['Eva Hammerschmied',1],['Eva P',1],
+      ['Gary',1],['Hammy Hernandez',1],['Joey',1],['Mara',1],
+      ['Michael Chinkov',1],['Michael Jon',1],['Neev',1],['Sai',1]
+    ]
+  },
+  {
+    id: 'q9', num: 9, category: 'Superlative #9',
+    title: 'Best Dressed',
+    tag: 'Down to the wire — just 1 vote apart',
+    responses: 69,
+    winner: 'Wanruo Wang',
+    winnerVotes: 10,
+    color: '#22D3EE',
+    chartType: 'h2h',
+    h2h: { left: { name: 'Wanruo Wang', votes: 10 }, right: { name: 'Alrisha Chen', votes: 9 }},
+    data: [
+      ['Wanruo Wang', 10], ['Alrisha Chen', 9], ['Christian', 3],
+      ['Madelene Hu', 3], ['Michael Chinkov', 2], ['Phoebe Chen', 2],
+      ['Lucas Huang', 2], ['Eva Hammerschmied', 2], ['Elynn', 2],
+      ['Lily', 2], ['Rishik Sehgal', 2]
+    ],
+    allWords: [
+      ['Wanruo Wang',10],['Alrisha Chen',9],['Christian',3],['Madelene Hu',3],
+      ['Michael Chinkov',2],['Phoebe Chen',2],['Lucas Huang',2],
+      ['Eva Hammerschmied',2],['Elynn',2],['Lily',2],['Rishik Sehgal',2],
+      ['Abella',1],['Aileen',1],['Alexis Santosa',1],['Amber Wee',1],['Ameya',1],
+      ['Andrew',1],['Angus',1],['Ava',1],['Bryan Ma',1],['Camden Krause',1],
+      ['Chianshin',1],['Crichton',1],['Eva Petrova',1],['Hongkang Zhao',1],
+      ['Ido Eyal',1],['Isabella Wong',1],['Jayden',1],['Jillian',1],
+      ['Jonathan Sun',1],['Michael Cho',1],['Michael Petrov',1],['Nathan Mao',1],
+      ['Neev Grover',1],['Pax',1],['Rohil',1],['Shreyas',1],['Tanvi Dhoot',1],
+      ['Teddy Arnaudov',1],['Veen',1],['Weston Smith',1]
+    ]
+  }
+];
+
+const COLORS_POOL = [
+  '#FFD700','#FF6B9D','#4ECDC4','#A855F7','#FF8C42',
+  '#34D399','#FBBF24','#818CF8','#22D3EE','#EF4444',
+  '#EC4899','#F97316'
+];
+
+// ===== BUILD SECTIONS =====
+const sectionsEl = document.getElementById('sections');
+
+DATA.forEach((q, qi) => {
+  // ===== SLIDE 1: TITLE CARD =====
+  const titleSlide = document.createElement('section');
+  titleSlide.className = 'slide slide-title-card';
+  titleSlide.id = q.id;
+  titleSlide.innerHTML = `
+    <div class="slide-title">
+      <div class="section-category">${q.category}</div>
+      <h2>${q.title}</h2>
+      <div class="section-responses">${q.responses} responses</div>
+      ${q.tag ? `<div class="slide-tag">${q.tag}</div>` : ''}
+    </div>
+    <div class="scroll-indicator" style="position:absolute;bottom:40px;" onclick="this.parentElement.nextElementSibling.scrollIntoView({behavior:'smooth'})">
+      <span>Word Cloud</span><div class="arrow"></div>
+    </div>
+  `;
+  sectionsEl.appendChild(titleSlide);
+
+  // Build a fake `sec` for the chart slide (we still need chartHTML logic)
+  const sec = document.createElement('section');
+  sec.className = 'slide slide-chart';
+  sec.id = q.id + '-chart';
+
+  let chartHTML = '';
+  const maxVal = q.data[0][1];
+  const shown = q.data.filter(d => d[1] >= 2);
+  const shownVotes = shown.reduce((s,d) => s+d[1], 0);
+  const otherVotes = q.responses - shownVotes;
+
+  function buildBarRows(data, maxV, colorFn) {
+    let rows = data.map((d,i) => `
+          <div class="bar-row" style="transition-delay:${i*0.08}s">
+            <div class="bar-rank">${i+1}</div>
+            <div class="bar-label">${d[0]}</div>
+            <div class="bar-track">
+              <div class="bar-fill bar-fill-light" style="--target-width:${(d[1]/maxV*100)}%;background:${colorFn(i)}">
+                <span class="bar-value">${d[1]}</span>
+              </div>
+            </div>
+          </div>`).join('');
+    if (otherVotes > 0) {
+      rows += `
+          <div class="bar-row other-row" style="transition-delay:${data.length*0.08}s">
+            <div class="bar-rank"></div>
+            <div class="bar-label">Other (${otherVotes})</div>
+            <div class="bar-track">
+              <div class="bar-fill bar-fill-light" style="--target-width:${(otherVotes/maxV*100)}%;background:#444">
+                <span class="bar-value" style="color:rgba(255,255,255,0.7)">${otherVotes}</span>
+              </div>
+            </div>
+          </div>`;
+    }
+    return rows;
+  }
+
+  if (q.chartType === 'h2h') {
+    const h2hNote = q.tag || '';
+    chartHTML = `
+      <div class="winner-spotlight">
+        <div class="winner-badge"><span class="trophy">&#127942;</span><span style="color:var(--gold);font-weight:600;font-size:1.1rem;">WINNER</span></div>
+        <div class="winner-name">${q.winner}</div>
+        <div class="winner-votes"><strong>${q.winnerVotes}</strong> votes out of ${q.responses}</div>
+      </div>
+      <div class="h2h" style="position:relative;">
+        <div class="h2h-side h2h-left">
+          <div class="h2h-name">${q.h2h.left.name}</div>
+          <div class="h2h-count" data-target="${q.h2h.left.votes}">0</div>
+          <div class="h2h-label">votes</div>
+        </div>
+        <div class="h2h-vs">VS</div>
+        <div class="h2h-side h2h-right">
+          <div class="h2h-name">${q.h2h.right.name}</div>
+          <div class="h2h-count" data-target="${q.h2h.right.votes}">0</div>
+          <div class="h2h-label">votes</div>
+        </div>
+      </div>
+      <div class="h2h-note">${h2hNote}</div>
+      <div class="chart-area">
+        <div class="chart-label">Everyone with 2+ votes</div>
+        <div class="bar-chart">${buildBarRows(shown, maxVal, i => i===0?'var(--accent-pink)':i===1?'var(--accent-blue)':COLORS_POOL[(i+2)%COLORS_POOL.length])}
+        </div>
+      </div>`;
+  } else if (q.chartType === 'donut') {
+    const topN = q.data.slice(0, 8);
+    const otherCount = q.data.slice(8).reduce((s,d) => s+d[1], 0) + (q.responses - q.data.reduce((s,d) => s+d[1], 0));
+    const allSlices = [...topN];
+    if (otherCount > 0) allSlices.push(['Other', otherCount]);
+    const total = allSlices.reduce((s,d) => s+d[1], 0);
+    const circumference = 2 * Math.PI * 90;
+
+    let offset = 0;
+    const segments = allSlices.map((d, i) => {
+      const len = (d[1] / total) * circumference;
+      const seg = `<circle class="donut-segment" cx="140" cy="140" r="90"
+        stroke="${i < topN.length ? COLORS_POOL[i % COLORS_POOL.length] : '#444'}"
+        stroke-dasharray="0 ${circumference}"
+        data-len="${len}" data-gap="${circumference - len}"
+        stroke-dashoffset="${-offset}"
+        />`;
+      offset += len;
+      return seg;
+    });
+
+    const legendHTML = allSlices.map((d, i) => `
+      <div class="legend-item">
+        <div class="legend-dot" style="background:${i < topN.length ? COLORS_POOL[i % COLORS_POOL.length] : '#444'}"></div>
+        <span class="legend-name">${d[0]}</span>
+        <span class="legend-count">(${d[1]})</span>
+      </div>`).join('');
+
+    chartHTML = `
+      <div class="winner-spotlight">
+        <div class="winner-badge"><span class="trophy">&#127942;</span><span style="color:var(--gold);font-weight:600;">WINNER</span></div>
+        <div class="winner-name">${q.winner}</div>
+        <div class="winner-votes"><strong>${q.winnerVotes}</strong> votes out of ${q.responses}</div>
+      </div>
+      ${q.tag ? `<div class="h2h-note">${q.tag}</div>` : ''}
+      <div class="donut-container">
+        <svg class="donut-svg" viewBox="0 0 280 280">${segments.join('')}</svg>
+        <div class="donut-legend">${legendHTML}</div>
+      </div>`;
+  } else {
+    chartHTML = `
+      <div class="winner-spotlight">
+        <div class="winner-badge"><span class="trophy">&#127942;</span><span style="color:var(--gold);font-weight:600;">WINNER</span></div>
+        <div class="winner-name">${q.winner}</div>
+        <div class="winner-votes"><strong>${q.winnerVotes}</strong> votes out of ${q.responses}</div>
+      </div>
+      ${q.tag ? `<div class="h2h-note">${q.tag}</div>` : ''}
+      <div class="chart-area">
+        <div class="chart-label">Everyone with 2+ votes</div>
+        <div class="bar-chart">${buildBarRows(shown, maxVal, i => COLORS_POOL[i%COLORS_POOL.length])}
+        </div>
+      </div>`;
+  }
+
+  // Word cloud — horizontal only, log scale, biggest in middle
+  const maxW = q.allWords[0][1];
+  // Reorder so largest words appear toward the visual center
+  const sortedByVotes = [...q.allWords].sort((a, b) => b[1] - a[1]);
+  const layout = [];
+  sortedByVotes.forEach((w, i) => {
+    if (i % 2 === 0) layout.push(w); else layout.unshift(w);
+  });
+  const cloudHTML = layout.map((w, i) => {
+    const ratio = Math.log(w[1] + 1) / Math.log(maxW + 1);
+    const size = Math.max(0.78, ratio * 2.1);
+    const opacity = Math.max(0.5, ratio * 0.5 + 0.5);
+    const color = COLORS_POOL[i % COLORS_POOL.length];
+    const weight = ratio > 0.75 ? 800 : ratio > 0.45 ? 700 : 500;
+    return `<span class="cloud-word" style="font-size:${size}rem;color:${color};--word-opacity:${opacity};font-weight:${weight};transition-delay:${i * 0.015}s" title="${w[0]}: ${w[1]} votes">${w[0]}</span>`;
+  }).join(' ');
+
+  // ===== SLIDE 2: WORD CLOUD =====
+  const cloudSlide = document.createElement('section');
+  cloudSlide.className = 'slide slide-cloud';
+  cloudSlide.id = q.id + '-cloud';
+  cloudSlide.innerHTML = `
+    <div class="slide-mini-header">
+      <div class="mini-cat">${q.category}</div>
+      <div class="mini-title">${q.title}</div>
+      <div class="mini-sub">Every name that received a vote</div>
+    </div>
+    <div class="word-cloud">${cloudHTML}</div>
+  `;
+  sectionsEl.appendChild(cloudSlide);
+
+  // ===== SLIDE 3: CHART / WINNER =====
+  sec.innerHTML = `
+    <div class="slide-mini-header">
+      <div class="mini-cat">${q.category}</div>
+      <div class="mini-title">${q.title}</div>
+      <div class="mini-sub">The Results</div>
+    </div>
+    ${chartHTML}
+  `;
+  sectionsEl.appendChild(sec);
+});
+
+
+// ===== STARS =====
+const starsContainer = document.getElementById('stars');
+for (let i = 0; i < 100; i++) {
+  const star = document.createElement('div');
+  star.className = 'star';
+  star.style.left = Math.random() * 100 + '%';
+  star.style.top = Math.random() * 100 + '%';
+  star.style.setProperty('--dur', (2 + Math.random() * 4) + 's');
+  star.style.setProperty('--max-opacity', (0.3 + Math.random() * 0.7));
+  star.style.animationDelay = Math.random() * 4 + 's';
+  starsContainer.appendChild(star);
+}
+
+// ===== SCROLL ANIMATIONS =====
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+
+    const el = entry.target;
+
+    // Bar rows
+    el.querySelectorAll('.bar-row').forEach(row => {
+      row.classList.add('visible');
+      row.querySelector('.bar-fill')?.classList.add('animated');
+    });
+
+    // Word cloud
+    el.querySelectorAll('.cloud-word').forEach(w => w.classList.add('visible'));
+
+    // Donut segments
+    el.querySelectorAll('.donut-segment').forEach(seg => {
+      const len = seg.getAttribute('data-len');
+      const gap = seg.getAttribute('data-gap');
+      seg.style.strokeDasharray = `${len} ${gap}`;
+    });
+
+    // H2H count up
+    el.querySelectorAll('.h2h-count').forEach(countEl => {
+      countEl.classList.add('visible');
+      const target = parseInt(countEl.dataset.target);
+      let current = 0;
+      const step = Math.ceil(target / 40);
+      const interval = setInterval(() => {
+        current += step;
+        if (current >= target) { current = target; clearInterval(interval); }
+        countEl.textContent = current;
+      }, 30);
+    });
+
+
+  });
+}, { threshold: 0.2 });
+
+document.querySelectorAll('.slide').forEach(sec => observer.observe(sec));
+
+// ===== BUILD SIDE NAV =====
+const sidenav = document.getElementById('sidenav');
+const sidenavTitles = [
+  ['home', 'Home'],
+  ...DATA.map(q => [q.id, q.title])
+];
+sidenavTitles.forEach(([id, label]) => {
+  const item = document.createElement('a');
+  item.className = 'sidenav-item';
+  item.href = '#' + id;
+  item.innerHTML = `<span class="sidenav-label">${label}</span><span class="sidenav-dot"></span>`;
+  sidenav.appendChild(item);
+});
+
+// Show/hide sidenav based on hero
+const heroEl = document.querySelector('.hero');
+const navObserver = new IntersectionObserver(([entry]) => {
+  sidenav.classList.toggle('visible', !entry.isIntersecting);
+}, { threshold: 0.1 });
+navObserver.observe(heroEl);
+
+// Active sidenav item
+const sidenavItems = sidenav.querySelectorAll('.sidenav-item');
+
+// For sidenav active state: tie all 3 slides of a question to the question id
+DATA.forEach(q => {
+  ['', '-cloud', '-chart'].forEach(suffix => {
+    const el = document.getElementById(q.id + suffix);
+    if (el) el.dataset.navTarget = q.id;
+  });
+});
+document.querySelector('.hero').dataset.navTarget = 'home';
+
+const sectionActiveObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const target = entry.target.dataset.navTarget;
+      sidenavItems.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + target));
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.hero, .slide').forEach(s => sectionActiveObserver.observe(s));
+
+// ===== CONFETTI =====
+function launchConfetti() {
+  const container = document.createElement('div');
+  container.className = 'confetti-container';
+  document.body.appendChild(container);
+  const colors = ['#FFD700','#FF6B9D','#4ECDC4','#A855F7','#FF8C42','#34D399','#FBBF24','#fff'];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+    piece.style.animationDelay = Math.random() * 0.8 + 's';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.width = (5 + Math.random() * 8) + 'px';
+    piece.style.height = (5 + Math.random() * 8) + 'px';
+    container.appendChild(piece);
+  }
+  setTimeout(() => container.remove(), 4000);
+}
+</script>
+</body>
+</html>
