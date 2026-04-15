@@ -578,6 +578,14 @@
   .bar-fill-light .bar-value { color: rgba(0,0,0,0.8); }
   .bar-fill-dark .bar-value { color: rgba(255,255,255,0.9); }
 
+  .tie-mark {
+    color: var(--text-secondary);
+    font-weight: 400;
+    font-style: italic;
+    font-size: 0.75em;
+    margin-left: 4px;
+  }
+
   .chart-label {
     font-size: 0.8rem;
     letter-spacing: 3px;
@@ -1242,34 +1250,42 @@ DATA.forEach((q, qi) => {
 
   let chartHTML = '';
   const maxVal = q.data[0][1];
-  const shown = q.data.filter(d => d[1] >= 2);
-  const shownVotes = shown.reduce((s,d) => s+d[1], 0);
-  const otherVotes = q.responses - shownVotes;
 
-  function buildBarRows(data, maxV, colorFn) {
-    let rows = data.map((d,i) => `
+  // Top 5, extending to include any names tied with 5th place
+  function topFiveWithTies(data) {
+    const sorted = [...data].sort((a, b) => b[1] - a[1]);
+    if (sorted.length <= 5) return sorted;
+    const cutoff = sorted[4][1];
+    return sorted.filter(d => d[1] >= cutoff);
+  }
+  const top5 = topFiveWithTies(q.data);
+  const top5Max = top5[0][1];
+
+  // Compute dense rank (1, 2, 2, 4, ...) so ties share a rank number
+  function withRanks(data) {
+    let rank = 0, lastVotes = null;
+    return data.map((d, i) => {
+      if (d[1] !== lastVotes) { rank = i + 1; lastVotes = d[1]; }
+      return { name: d[0], votes: d[1], rank };
+    });
+  }
+  const ranked = withRanks(top5);
+  // Mark which ranks are shared (tied)
+  const rankCounts = ranked.reduce((acc, r) => (acc[r.rank] = (acc[r.rank] || 0) + 1, acc), {});
+
+  function buildBarRows(rows, maxV, colorFn) {
+    return rows.map((r, i) => {
+      const isTie = rankCounts[r.rank] > 1;
+      const tieMark = isTie ? ' <span class="tie-mark">(tie)</span>' : '';
+      return `
           <div class="bar-row" style="transition-delay:${i*0.08}s">
-            <div class="bar-rank">${i+1}</div>
-            <div class="bar-label">${d[0]}</div>
+            <div class="bar-rank">${r.rank}</div>
+            <div class="bar-label">${r.name}${tieMark}</div>
             <div class="bar-track">
-              <div class="bar-fill bar-fill-light" style="--target-width:${(d[1]/maxV*100)}%;background:${colorFn(i)}">
-                <span class="bar-value">${d[1]}</span>
-              </div>
-            </div>
-          </div>`).join('');
-    if (otherVotes > 0) {
-      rows += `
-          <div class="bar-row other-row" style="transition-delay:${data.length*0.08}s">
-            <div class="bar-rank"></div>
-            <div class="bar-label">Other (${otherVotes})</div>
-            <div class="bar-track">
-              <div class="bar-fill bar-fill-light" style="--target-width:${(otherVotes/maxV*100)}%;background:#444">
-                <span class="bar-value" style="color:rgba(255,255,255,0.7)">${otherVotes}</span>
-              </div>
+              <div class="bar-fill bar-fill-light" style="--target-width:${(r.votes/maxV*100)}%;background:${colorFn(i)}"></div>
             </div>
           </div>`;
-    }
-    return rows;
+    }).join('');
   }
 
   if (q.chartType === 'h2h') {
@@ -1295,8 +1311,8 @@ DATA.forEach((q, qi) => {
       </div>
       <div class="h2h-note">${h2hNote}</div>
       <div class="chart-area">
-        <div class="chart-label">Everyone with 2+ votes</div>
-        <div class="bar-chart">${buildBarRows(shown, maxVal, i => i===0?'var(--accent-pink)':i===1?'var(--accent-blue)':COLORS_POOL[(i+2)%COLORS_POOL.length])}
+        <div class="chart-label">Top 5</div>
+        <div class="bar-chart">${buildBarRows(ranked, top5Max, i => i===0?'var(--accent-pink)':i===1?'var(--accent-blue)':COLORS_POOL[(i+2)%COLORS_POOL.length])}
         </div>
       </div>`;
   } else if (q.chartType === 'donut') {
@@ -1347,8 +1363,8 @@ DATA.forEach((q, qi) => {
       </div>
       ${q.tag ? `<div class="h2h-note">${q.tag}</div>` : ''}
       <div class="chart-area">
-        <div class="chart-label">Everyone with 2+ votes</div>
-        <div class="bar-chart">${buildBarRows(shown, maxVal, i => COLORS_POOL[i%COLORS_POOL.length])}
+        <div class="chart-label">Top 5</div>
+        <div class="bar-chart">${buildBarRows(ranked, top5Max, i => COLORS_POOL[i%COLORS_POOL.length])}
         </div>
       </div>`;
   }
