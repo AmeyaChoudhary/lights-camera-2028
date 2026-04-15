@@ -283,6 +283,56 @@
   .slide-chart .bar-track { height: 26px; }
   .slide-chart .chart-label { margin-bottom: 0.5rem; }
 
+  /* ===== SCROLL-DRIVEN ENTRANCES ===== */
+  .slide-title .section-category,
+  .slide-title h2,
+  .slide-title .section-responses,
+  .slide-title .slide-tag {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .slide-title-card.in-view .slide-title .section-category { opacity: 1; transform: translateY(0); transition-delay: 0.05s; }
+  .slide-title-card.in-view .slide-title h2 { opacity: 1; transform: translateY(0); transition-delay: 0.18s; }
+  .slide-title-card.in-view .slide-title .section-responses { opacity: 1; transform: translateY(0); transition-delay: 0.35s; }
+  .slide-title-card.in-view .slide-title .slide-tag { opacity: 1; transform: translateY(0); transition-delay: 0.5s; }
+
+  /* Word cloud header pop */
+  .slide-cloud .slide-mini-header {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .slide-cloud.in-view .slide-mini-header { opacity: 1; transform: translateY(0); }
+
+  .slide-cloud .word-cloud {
+    opacity: 0;
+    transform: perspective(1000px) rotateX(8deg) translateY(20px);
+    transition: opacity 0.6s ease, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .slide-cloud.in-view .word-cloud {
+    opacity: 1;
+    transform: perspective(1000px) rotateX(0deg) translateY(0);
+  }
+
+  /* Chart slide entrance: perspective tilt → flatten */
+  .slide-chart .slide-mini-header,
+  .slide-chart .winner-spotlight,
+  .slide-chart .h2h,
+  .slide-chart .h2h-note,
+  .slide-chart .donut-container,
+  .slide-chart .chart-area {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .slide-chart.in-view .slide-mini-header { opacity: 1; transform: translateY(0); transition-delay: 0.05s; }
+  .slide-chart.in-view .winner-spotlight { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
+  .slide-chart.in-view .h2h,
+  .slide-chart.in-view .donut-container { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+  .slide-chart.in-view .h2h-note { opacity: 1; transform: translateY(0); transition-delay: 0.55s; }
+  .slide-chart.in-view .chart-area { opacity: 1; transform: translateY(0); transition-delay: 0.5s; }
+
   /* Big centered title card */
   .slide-title {
     text-align: center;
@@ -713,21 +763,25 @@
   .cloud-word {
     display: inline-block;
     opacity: 0;
-    transform: translateY(8px);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    transform: translate3d(var(--rx, 0px), var(--ry, -120px), 0)
+               rotate(var(--rrot, -25deg))
+               scale(0.4);
+    transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.6s ease;
     cursor: default;
     white-space: nowrap;
     letter-spacing: 0.01em;
+    will-change: transform, opacity;
   }
 
   .cloud-word.visible {
     opacity: var(--word-opacity);
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
   }
 
   .cloud-word:hover {
     opacity: 1 !important;
-    transform: translateY(-2px) scale(1.05);
+    transform: translateY(-3px) scale(1.08);
   }
 
   /* ===== STATS GRID ===== */
@@ -1307,13 +1361,20 @@ DATA.forEach((q, qi) => {
   sortedByVotes.forEach((w, i) => {
     if (i % 2 === 0) layout.push(w); else layout.unshift(w);
   });
+  // Seeded pseudo-random for stable per-word fall trajectories
+  let cloudSeed = q.title.length * 31 + q.allWords.length * 7;
+  const cRand = () => { cloudSeed = (cloudSeed * 16807 + 11) % 2147483647; return cloudSeed / 2147483647; };
   const cloudHTML = layout.map((w, i) => {
     const ratio = Math.log(w[1] + 1) / Math.log(maxW + 1);
     const size = Math.max(0.78, ratio * 2.1);
     const opacity = Math.max(0.5, ratio * 0.5 + 0.5);
     const color = COLORS_POOL[i % COLORS_POOL.length];
     const weight = ratio > 0.75 ? 800 : ratio > 0.45 ? 700 : 500;
-    return `<span class="cloud-word" style="font-size:${size}rem;color:${color};--word-opacity:${opacity};font-weight:${weight};transition-delay:${i * 0.015}s" title="${w[0]}: ${w[1]} votes">${w[0]}</span>`;
+    const rx = Math.round((cRand() - 0.5) * 200);   // -100..100 px
+    const ry = -Math.round(80 + cRand() * 200);     // fall from above
+    const rrot = Math.round((cRand() - 0.5) * 80);  // -40..40 deg
+    const delay = (i * 0.025 + cRand() * 0.15).toFixed(2);
+    return `<span class="cloud-word" style="font-size:${size}rem;color:${color};--word-opacity:${opacity};--rx:${rx}px;--ry:${ry}px;--rrot:${rrot}deg;font-weight:${weight};transition-delay:${delay}s" title="${w[0]}: ${w[1]} votes">${w[0]}</span>`;
   }).join(' ');
 
   // ===== SLIDE 2: WORD CLOUD =====
@@ -1359,42 +1420,64 @@ for (let i = 0; i < 100; i++) {
 // ===== SCROLL ANIMATIONS =====
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
-    if (!entry.isIntersecting) return;
-
     const el = entry.target;
+    const visible = entry.isIntersecting && entry.intersectionRatio > 0.25;
 
-    // Bar rows
-    el.querySelectorAll('.bar-row').forEach(row => {
-      row.classList.add('visible');
-      row.querySelector('.bar-fill')?.classList.add('animated');
-    });
+    el.classList.toggle('in-view', visible);
 
-    // Word cloud
-    el.querySelectorAll('.cloud-word').forEach(w => w.classList.add('visible'));
+    if (visible) {
+      // Bar rows stagger in
+      el.querySelectorAll('.bar-row').forEach(row => {
+        row.classList.add('visible');
+        row.querySelector('.bar-fill')?.classList.add('animated');
+      });
 
-    // Donut segments
-    el.querySelectorAll('.donut-segment').forEach(seg => {
-      const len = seg.getAttribute('data-len');
-      const gap = seg.getAttribute('data-gap');
-      seg.style.strokeDasharray = `${len} ${gap}`;
-    });
+      // Word cloud — falls into place
+      el.querySelectorAll('.cloud-word').forEach(w => w.classList.add('visible'));
 
-    // H2H count up
-    el.querySelectorAll('.h2h-count').forEach(countEl => {
-      countEl.classList.add('visible');
-      const target = parseInt(countEl.dataset.target);
-      let current = 0;
-      const step = Math.ceil(target / 40);
-      const interval = setInterval(() => {
-        current += step;
-        if (current >= target) { current = target; clearInterval(interval); }
-        countEl.textContent = current;
-      }, 30);
-    });
+      // Donut segments draw
+      el.querySelectorAll('.donut-segment').forEach(seg => {
+        const len = seg.getAttribute('data-len');
+        const gap = seg.getAttribute('data-gap');
+        seg.style.strokeDasharray = `${len} ${gap}`;
+      });
 
-
+      // H2H count up
+      el.querySelectorAll('.h2h-count').forEach(countEl => {
+        if (countEl.dataset.counted === '1') return;
+        countEl.dataset.counted = '1';
+        countEl.classList.add('visible');
+        const target = parseInt(countEl.dataset.target);
+        let current = 0;
+        const step = Math.max(1, Math.ceil(target / 40));
+        const interval = setInterval(() => {
+          current += step;
+          if (current >= target) { current = target; clearInterval(interval); }
+          countEl.textContent = current;
+        }, 30);
+      });
+    } else {
+      // Reset cloud so re-entry replays the fall
+      el.querySelectorAll('.cloud-word').forEach(w => w.classList.remove('visible'));
+      // Reset bars so they re-stagger
+      el.querySelectorAll('.bar-row').forEach(row => {
+        row.classList.remove('visible');
+        row.querySelector('.bar-fill')?.classList.remove('animated');
+      });
+      // Reset donut
+      el.querySelectorAll('.donut-segment').forEach(seg => {
+        const gap = seg.getAttribute('data-gap');
+        seg.style.strokeDasharray = `0 ${gap}`;
+      });
+      // Reset h2h counter so it counts again next entry
+      el.querySelectorAll('.h2h-count').forEach(countEl => {
+        countEl.dataset.counted = '';
+        countEl.classList.remove('visible');
+        countEl.textContent = '0';
+      });
+    }
   });
-}, { threshold: 0.2 });
+}, { threshold: [0, 0.25, 0.5, 0.75] });
 
 document.querySelectorAll('.slide').forEach(sec => observer.observe(sec));
 
