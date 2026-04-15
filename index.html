@@ -272,9 +272,15 @@
   }
 
   .slide.slide-chart { justify-content: flex-start; padding-top: 70px; }
-  .slide.slide-chart-h2h { justify-content: center; padding-top: 60px; }
-  .slide.slide-chart-h2h .h2h { margin-bottom: 0; }
   .slide.slide-cloud { justify-content: center; padding-left: 2vw; padding-right: 2vw; }
+
+  /* H2H chart slide: tighter so matchup + top 5 both fit */
+  .slide-chart .h2h { min-height: 160px; margin-bottom: 1rem; }
+  .slide-chart .h2h-side { padding: 1rem 1.5rem; }
+  .slide-chart .h2h-name { font-size: clamp(1.2rem, 2.4vw, 1.7rem); margin-bottom: 0.25rem; }
+  .slide-chart .h2h-label { font-size: 0.75rem; }
+  .slide-chart .h2h-vs { width: 42px; height: 42px; font-size: 1.1rem; }
+  .slide-chart .h2h-margin { margin-top: 0.5rem; margin-bottom: 1.25rem; font-size: 0.85rem; letter-spacing: 3px; }
 
   /* Compact spacing inside chart slide */
   .slide-chart .winner-spotlight { margin-bottom: 1.5rem; }
@@ -1057,8 +1063,8 @@ const DATA = [
       ['Daniel Xi',2],['Saria Lum',2],['Amber',2],['Bryan Ma',2],
       ['Ashley',2],['Jonathan Sun',2],['Lettuce',2],['Isabella P',2],['Diya D',2],
       ['Abby',1],['Abby Cheng',1],['Abigail Liu',1],['Alexander Maxim',1],['Ameya C',1],
-      ['Asryan',1],['Aubrie Su',1],['Ava Ding',1],['Boxuan',1],['Christian',1],
-      ['Edmund Wang',1],['Elaine',1],['Elynn',1],['Faye Gu',1],['Hongkang Zhao',1],
+      ['Aaryan',1],['Aubrie Su',1],['Ava Ding',1],['Boxuan',1],['Christian',1],
+      ['Edmund Wang',1],['Elaine',1],['Elynn',1],['Hongkang Zhao',1],
       ['Ishaan Dhillon-Patel',1],['Jillian Chen',1],['Kayvion',1],['Liana',1],
       ['Lucas H',1],['Marc',1],['Neev',1],['Phoebe Chen',1],['Ricardo',1],
       ['Sophia',1],['Sophia Woodhouse',1],['Sunny',1],['Teddy',1],['Vivaan',1],
@@ -1305,7 +1311,6 @@ DATA.forEach((q, qi) => {
   }
 
   if (q.chartType === 'h2h') {
-    sec.classList.add('slide-chart-h2h');
     const margin = Math.abs(q.h2h.left.votes - q.h2h.right.votes);
     const marginText = margin === 0 ? 'Dead heat' : `${margin} vote${margin === 1 ? '' : 's'} apart`;
     chartHTML = `
@@ -1325,7 +1330,12 @@ DATA.forEach((q, qi) => {
           <div class="h2h-label">${q.h2h.right.name === q.winner ? 'winner' : 'runner-up'}</div>
         </div>
       </div>
-      <div class="h2h-margin">${marginText}</div>`;
+      <div class="h2h-margin">${marginText}</div>
+      <div class="chart-area">
+        <div class="chart-label">Top 5</div>
+        <div class="bar-chart">${buildBarRows(ranked, top5Max, i => i===0?'var(--accent-pink)':i===1?'var(--accent-blue)':COLORS_POOL[(i+2)%COLORS_POOL.length])}
+        </div>
+      </div>`;
   } else if (q.chartType === 'donut') {
     const topN = q.data.slice(0, 8);
     const otherCount = q.data.slice(8).reduce((s,d) => s+d[1], 0) + (q.responses - q.data.reduce((s,d) => s+d[1], 0));
