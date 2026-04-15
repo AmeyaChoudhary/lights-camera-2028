@@ -272,6 +272,8 @@
   }
 
   .slide.slide-chart { justify-content: flex-start; padding-top: 70px; }
+  .slide.slide-chart-h2h { justify-content: center; padding-top: 60px; }
+  .slide.slide-chart-h2h .h2h { margin-bottom: 0; }
   .slide.slide-cloud { justify-content: center; padding-left: 2vw; padding-right: 2vw; }
 
   /* Compact spacing inside chart slide */
@@ -321,6 +323,7 @@
   .slide-chart .slide-mini-header,
   .slide-chart .winner-spotlight,
   .slide-chart .h2h,
+  .slide-chart .h2h-margin,
   .slide-chart .h2h-note,
   .slide-chart .donut-container,
   .slide-chart .chart-area {
@@ -332,6 +335,7 @@
   .slide-chart.in-view .winner-spotlight { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
   .slide-chart.in-view .h2h,
   .slide-chart.in-view .donut-container { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+  .slide-chart.in-view .h2h-margin { opacity: 1; transform: translateY(0); transition-delay: 0.65s; }
   .slide-chart.in-view .h2h-note { opacity: 1; transform: translateY(0); transition-delay: 0.55s; }
   .slide-chart.in-view .chart-area { opacity: 1; transform: translateY(0); transition-delay: 0.5s; }
 
@@ -1301,6 +1305,7 @@ DATA.forEach((q, qi) => {
   }
 
   if (q.chartType === 'h2h') {
+    sec.classList.add('slide-chart-h2h');
     const margin = Math.abs(q.h2h.left.votes - q.h2h.right.votes);
     const marginText = margin === 0 ? 'Dead heat' : `${margin} vote${margin === 1 ? '' : 's'} apart`;
     chartHTML = `
@@ -1320,13 +1325,7 @@ DATA.forEach((q, qi) => {
           <div class="h2h-label">${q.h2h.right.name === q.winner ? 'winner' : 'runner-up'}</div>
         </div>
       </div>
-      <div class="h2h-margin">${marginText}</div>
-      ${q.tag ? `<div class="h2h-note">${q.tag}</div>` : ''}
-      <div class="chart-area">
-        <div class="chart-label">Top 5</div>
-        <div class="bar-chart">${buildBarRows(ranked, top5Max, i => i===0?'var(--accent-pink)':i===1?'var(--accent-blue)':COLORS_POOL[(i+2)%COLORS_POOL.length])}
-        </div>
-      </div>`;
+      <div class="h2h-margin">${marginText}</div>`;
   } else if (q.chartType === 'donut') {
     const topN = q.data.slice(0, 8);
     const otherCount = q.data.slice(8).reduce((s,d) => s+d[1], 0) + (q.responses - q.data.reduce((s,d) => s+d[1], 0));
