@@ -212,18 +212,20 @@
     color: transparent;
     letter-spacing: 0.5px;
     white-space: nowrap;
-    background: rgba(10,10,15,0.9);
-    backdrop-filter: blur(10px);
+    background: transparent;
+    backdrop-filter: none;
     padding: 4px 10px;
     border-radius: 6px;
     border: 1px solid transparent;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease, background 0.3s ease, border-color 0.3s ease;
     pointer-events: none;
   }
 
   .sidenav-item:hover .sidenav-label,
   .sidenav-item.active .sidenav-label {
     color: var(--text-primary);
+    background: rgba(10,10,15,0.9);
+    backdrop-filter: blur(10px);
     border-color: rgba(255,215,0,0.2);
   }
 
@@ -768,8 +770,8 @@
     align-items: baseline;
     gap: 8px 18px;
     width: 100%;
-    max-width: 1400px;
-    padding: 2.5rem 3rem;
+    max-width: 1180px;
+    padding: 2.25rem 2.75rem;
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 24px;
