@@ -741,12 +741,22 @@
     margin-top: 0.25rem;
   }
 
+  .h2h-margin {
+    text-align: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-top: -1.5rem;
+    margin-bottom: 1rem;
+  }
+
   .h2h-note {
     text-align: center;
     color: var(--text-secondary);
     font-size: 0.9rem;
     font-style: italic;
-    margin-top: -1.5rem;
     margin-bottom: 2rem;
   }
 
@@ -1289,27 +1299,27 @@ DATA.forEach((q, qi) => {
   }
 
   if (q.chartType === 'h2h') {
-    const h2hNote = q.tag || '';
+    const margin = Math.abs(q.h2h.left.votes - q.h2h.right.votes);
+    const marginText = margin === 0 ? 'Dead heat' : `${margin} vote${margin === 1 ? '' : 's'} apart`;
     chartHTML = `
       <div class="winner-spotlight">
         <div class="winner-badge"><span class="trophy">&#127942;</span><span style="color:var(--gold);font-weight:600;font-size:1.1rem;">WINNER</span></div>
         <div class="winner-name">${q.winner}</div>
-        <div class="winner-votes"><strong>${q.winnerVotes}</strong> votes out of ${q.responses}</div>
+        <div class="winner-votes">out of ${q.responses} responses</div>
       </div>
       <div class="h2h" style="position:relative;">
         <div class="h2h-side h2h-left">
           <div class="h2h-name">${q.h2h.left.name}</div>
-          <div class="h2h-count" data-target="${q.h2h.left.votes}">0</div>
-          <div class="h2h-label">votes</div>
+          <div class="h2h-label">${q.h2h.left.name === q.winner ? 'winner' : 'runner-up'}</div>
         </div>
         <div class="h2h-vs">VS</div>
         <div class="h2h-side h2h-right">
           <div class="h2h-name">${q.h2h.right.name}</div>
-          <div class="h2h-count" data-target="${q.h2h.right.votes}">0</div>
-          <div class="h2h-label">votes</div>
+          <div class="h2h-label">${q.h2h.right.name === q.winner ? 'winner' : 'runner-up'}</div>
         </div>
       </div>
-      <div class="h2h-note">${h2hNote}</div>
+      <div class="h2h-margin">${marginText}</div>
+      ${q.tag ? `<div class="h2h-note">${q.tag}</div>` : ''}
       <div class="chart-area">
         <div class="chart-label">Top 5</div>
         <div class="bar-chart">${buildBarRows(ranked, top5Max, i => i===0?'var(--accent-pink)':i===1?'var(--accent-blue)':COLORS_POOL[(i+2)%COLORS_POOL.length])}
@@ -1340,14 +1350,13 @@ DATA.forEach((q, qi) => {
       <div class="legend-item">
         <div class="legend-dot" style="background:${i < topN.length ? COLORS_POOL[i % COLORS_POOL.length] : '#444'}"></div>
         <span class="legend-name">${d[0]}</span>
-        <span class="legend-count">(${d[1]})</span>
       </div>`).join('');
 
     chartHTML = `
       <div class="winner-spotlight">
         <div class="winner-badge"><span class="trophy">&#127942;</span><span style="color:var(--gold);font-weight:600;">WINNER</span></div>
         <div class="winner-name">${q.winner}</div>
-        <div class="winner-votes"><strong>${q.winnerVotes}</strong> votes out of ${q.responses}</div>
+        <div class="winner-votes">out of ${q.responses} responses</div>
       </div>
       ${q.tag ? `<div class="h2h-note">${q.tag}</div>` : ''}
       <div class="donut-container">
@@ -1359,7 +1368,7 @@ DATA.forEach((q, qi) => {
       <div class="winner-spotlight">
         <div class="winner-badge"><span class="trophy">&#127942;</span><span style="color:var(--gold);font-weight:600;">WINNER</span></div>
         <div class="winner-name">${q.winner}</div>
-        <div class="winner-votes"><strong>${q.winnerVotes}</strong> votes out of ${q.responses}</div>
+        <div class="winner-votes">out of ${q.responses} responses</div>
       </div>
       ${q.tag ? `<div class="h2h-note">${q.tag}</div>` : ''}
       <div class="chart-area">
