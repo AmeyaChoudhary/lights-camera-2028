@@ -270,7 +270,7 @@
   }
 
   .slide.slide-chart { justify-content: flex-start; padding-top: 70px; }
-  .slide.slide-cloud { justify-content: center; }
+  .slide.slide-cloud { justify-content: center; padding-left: 2vw; padding-right: 2vw; }
 
   /* Compact spacing inside chart slide */
   .slide-chart .winner-spotlight { margin-bottom: 1.5rem; }
@@ -766,10 +766,10 @@
     flex-wrap: wrap;
     justify-content: center;
     align-items: baseline;
-    gap: 4px 14px;
+    gap: 8px 18px;
     width: 100%;
-    max-width: 920px;
-    padding: 2rem 2.5rem;
+    max-width: 1400px;
+    padding: 2.5rem 3rem;
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 24px;
@@ -1391,7 +1391,7 @@ DATA.forEach((q, qi) => {
   const cRand = () => { cloudSeed = (cloudSeed * 16807 + 11) % 2147483647; return cloudSeed / 2147483647; };
   const cloudHTML = layout.map((w, i) => {
     const ratio = Math.log(w[1] + 1) / Math.log(maxW + 1);
-    const size = Math.max(0.78, ratio * 2.1);
+    const size = Math.max(0.95, ratio * 3.2);
     const opacity = Math.max(0.5, ratio * 0.5 + 0.5);
     const color = COLORS_POOL[i % COLORS_POOL.length];
     const weight = ratio > 0.75 ? 800 : ratio > 0.45 ? 700 : 500;
