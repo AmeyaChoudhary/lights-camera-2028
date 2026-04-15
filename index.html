@@ -29,7 +29,10 @@
     --accent-indigo: #818CF8;
   }
 
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
+  }
 
   body {
     background: var(--bg-dark);
@@ -37,6 +40,8 @@
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;
   }
+
+  .hero, .slide, .footer { scroll-snap-align: start; scroll-snap-stop: always; }
 
   /* ===== HERO ===== */
   .hero {
@@ -251,7 +256,98 @@
     .sidenav-dot { width: 8px; height: 8px; }
   }
 
-  /* ===== SECTIONS ===== */
+  /* ===== SLIDES ===== */
+  .slide {
+    min-height: 100vh;
+    height: 100vh;
+    padding: 70px 5vw 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow-y: auto;
+  }
+
+  .slide.slide-chart { justify-content: flex-start; padding-top: 70px; }
+  .slide.slide-cloud { justify-content: center; }
+
+  /* Compact spacing inside chart slide */
+  .slide-chart .winner-spotlight { margin-bottom: 1.5rem; }
+  .slide-chart .winner-badge { padding: 8px 22px; margin-bottom: 0.5rem; }
+  .slide-chart .winner-name { font-size: clamp(1.5rem, 3vw, 2.2rem); }
+  .slide-chart .h2h { min-height: 200px; margin-bottom: 1.5rem; }
+  .slide-chart .h2h-side { padding: 1.5rem 1.5rem; }
+  .slide-chart .h2h-count { font-size: 2.8rem; }
+  .slide-chart .bar-chart { gap: 6px; }
+  .slide-chart .bar-track { height: 26px; }
+  .slide-chart .chart-label { margin-bottom: 0.5rem; }
+
+  /* Big centered title card */
+  .slide-title {
+    text-align: center;
+  }
+  .slide-title .section-category {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .slide-title h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #fff, var(--gold-light), var(--gold));
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 5s ease-in-out infinite;
+  }
+  .slide-title .section-responses {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .slide-title .slide-tag {
+    margin-top: 1.5rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  /* Cloud / chart slide compact header */
+  .slide-mini-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .slide-mini-header .mini-cat {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.4rem;
+  }
+  .slide-mini-header .mini-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    font-weight: 700;
+  }
+  .slide-mini-header .mini-sub {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.3rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Section uses old name for compatibility - keep as alias */
   .section {
     min-height: 100vh;
     padding: 120px 5vw 80px;
@@ -601,43 +697,37 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
-    gap: 6px 12px;
+    align-items: baseline;
+    gap: 4px 14px;
     width: 100%;
-    max-width: 840px;
-    margin-top: 2rem;
-    padding: 2.5rem;
+    max-width: 920px;
+    padding: 2rem 2.5rem;
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 28px;
+    border-radius: 24px;
     box-shadow: inset 0 0 40px rgba(255,255,255,0.05);
     backdrop-filter: blur(10px);
+    line-height: 1.15;
   }
 
   .cloud-word {
     display: inline-block;
     opacity: 0;
-    transform: scale(0.5);
-    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease;
+    transform: translateY(8px);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
     cursor: default;
-    line-height: 1.2;
     white-space: nowrap;
     letter-spacing: 0.01em;
   }
 
   .cloud-word.visible {
     opacity: var(--word-opacity);
-    transform: scale(1);
+    transform: translateY(0);
   }
 
   .cloud-word:hover {
     opacity: 1 !important;
-    transform: scale(1.1);
-  }
-
-  .cloud-word.vertical {
-    writing-mode: vertical-lr;
-    text-orientation: mixed;
+    transform: translateY(-2px) scale(1.05);
   }
 
   /* ===== STATS GRID ===== */
@@ -1074,9 +1164,27 @@ const COLORS_POOL = [
 const sectionsEl = document.getElementById('sections');
 
 DATA.forEach((q, qi) => {
+  // ===== SLIDE 1: TITLE CARD =====
+  const titleSlide = document.createElement('section');
+  titleSlide.className = 'slide slide-title-card';
+  titleSlide.id = q.id;
+  titleSlide.innerHTML = `
+    <div class="slide-title">
+      <div class="section-category">${q.category}</div>
+      <h2>${q.title}</h2>
+      <div class="section-responses">${q.responses} responses</div>
+      ${q.tag ? `<div class="slide-tag">${q.tag}</div>` : ''}
+    </div>
+    <div class="scroll-indicator" style="position:absolute;bottom:40px;" onclick="this.parentElement.nextElementSibling.scrollIntoView({behavior:'smooth'})">
+      <span>Word Cloud</span><div class="arrow"></div>
+    </div>
+  `;
+  sectionsEl.appendChild(titleSlide);
+
+  // Build a fake `sec` for the chart slide (we still need chartHTML logic)
   const sec = document.createElement('section');
-  sec.className = 'section';
-  sec.id = q.id;
+  sec.className = 'slide slide-chart';
+  sec.id = q.id + '-chart';
 
   let chartHTML = '';
   const maxVal = q.data[0][1];
@@ -1191,32 +1299,46 @@ DATA.forEach((q, qi) => {
       </div>`;
   }
 
-  // Word cloud — use log scale so 1-vote names are still readable
+  // Word cloud — horizontal only, log scale, biggest in middle
   const maxW = q.allWords[0][1];
-  // Seeded pseudo-random so layout stays stable across re-renders
-  let seed = q.title.length * 7 + q.allWords.length;
-  const sRand = () => { seed = (seed * 16807 + 11) % 2147483647; return seed / 2147483647; };
-  const cloudHTML = q.allWords.map((w, i) => {
+  // Reorder so largest words appear toward the visual center
+  const sortedByVotes = [...q.allWords].sort((a, b) => b[1] - a[1]);
+  const layout = [];
+  sortedByVotes.forEach((w, i) => {
+    if (i % 2 === 0) layout.push(w); else layout.unshift(w);
+  });
+  const cloudHTML = layout.map((w, i) => {
     const ratio = Math.log(w[1] + 1) / Math.log(maxW + 1);
-    const size = Math.max(0.75, ratio * 2.8);
-    const opacity = Math.max(0.45, ratio * 0.55 + 0.45);
+    const size = Math.max(0.78, ratio * 2.1);
+    const opacity = Math.max(0.5, ratio * 0.5 + 0.5);
     const color = COLORS_POOL[i % COLORS_POOL.length];
-    const isVert = sRand() < 0.25;
-    const weight = ratio > 0.7 ? 800 : ratio > 0.4 ? 700 : 600;
-    return `<span class="cloud-word${isVert ? ' vertical' : ''}" style="font-size:${size}rem;color:${color};--word-opacity:${opacity};font-weight:${weight};transition-delay:${i * 0.03}s" title="${w[0]}: ${w[1]} votes">${w[0]}</span>`;
+    const weight = ratio > 0.75 ? 800 : ratio > 0.45 ? 700 : 500;
+    return `<span class="cloud-word" style="font-size:${size}rem;color:${color};--word-opacity:${opacity};font-weight:${weight};transition-delay:${i * 0.015}s" title="${w[0]}: ${w[1]} votes">${w[0]}</span>`;
   }).join(' ');
 
-  sec.innerHTML = `
-    <div class="section-number">${q.num}</div>
-    <div class="section-header">
-      <div class="section-category">${q.category}</div>
-      <h2 class="section-title">${q.title}</h2>
-      <div class="section-responses">${q.responses} responses</div>
+  // ===== SLIDE 2: WORD CLOUD =====
+  const cloudSlide = document.createElement('section');
+  cloudSlide.className = 'slide slide-cloud';
+  cloudSlide.id = q.id + '-cloud';
+  cloudSlide.innerHTML = `
+    <div class="slide-mini-header">
+      <div class="mini-cat">${q.category}</div>
+      <div class="mini-title">${q.title}</div>
+      <div class="mini-sub">Every name that received a vote</div>
     </div>
-    ${chartHTML}
     <div class="word-cloud">${cloudHTML}</div>
   `;
+  sectionsEl.appendChild(cloudSlide);
 
+  // ===== SLIDE 3: CHART / WINNER =====
+  sec.innerHTML = `
+    <div class="slide-mini-header">
+      <div class="mini-cat">${q.category}</div>
+      <div class="mini-title">${q.title}</div>
+      <div class="mini-sub">The Results</div>
+    </div>
+    ${chartHTML}
+  `;
   sectionsEl.appendChild(sec);
 });
 
@@ -1274,7 +1396,7 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.2 });
 
-document.querySelectorAll('.section').forEach(sec => observer.observe(sec));
+document.querySelectorAll('.slide').forEach(sec => observer.observe(sec));
 
 // ===== BUILD SIDE NAV =====
 const sidenav = document.getElementById('sidenav');
@@ -1299,17 +1421,25 @@ navObserver.observe(heroEl);
 
 // Active sidenav item
 const sidenavItems = sidenav.querySelectorAll('.sidenav-item');
-const sectionObserver = new IntersectionObserver((entries) => {
+
+// For sidenav active state: tie all 3 slides of a question to the question id
+DATA.forEach(q => {
+  ['', '-cloud', '-chart'].forEach(suffix => {
+    const el = document.getElementById(q.id + suffix);
+    if (el) el.dataset.navTarget = q.id;
+  });
+});
+document.querySelector('.hero').dataset.navTarget = 'home';
+
+const sectionActiveObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      sidenavItems.forEach(a => a.classList.remove('active'));
-      const active = sidenav.querySelector(`a[href="#${entry.target.id}"]`);
-      if (active) active.classList.add('active');
+      const target = entry.target.dataset.navTarget;
+      sidenavItems.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + target));
     }
   });
 }, { threshold: 0.3 });
-
-document.querySelectorAll('.hero, .section').forEach(s => sectionObserver.observe(s));
+document.querySelectorAll('.hero, .slide').forEach(s => sectionActiveObserver.observe(s));
 
 // ===== CONFETTI =====
 function launchConfetti() {
