@@ -1273,25 +1273,21 @@ DATA.forEach((q, qi) => {
   let chartHTML = '';
   const maxVal = q.data[0][1];
 
-  // Top 5, extending to include any names tied with 5th place
-  function topFiveWithTies(data) {
+  // Top 4 dense-rank slots: ranks 1, 2, 3, 4 are always all represented;
+  // ties at any rank simply add more rows at that same rank.
+  function top4DenseRank(data) {
     const sorted = [...data].sort((a, b) => b[1] - a[1]);
-    if (sorted.length <= 5) return sorted;
-    const cutoff = sorted[4][1];
-    return sorted.filter(d => d[1] >= cutoff);
-  }
-  const top5 = topFiveWithTies(q.data);
-  const top5Max = top5[0][1];
-
-  // Compute dense rank (1, 2, 2, 4, ...) so ties share a rank number
-  function withRanks(data) {
+    const out = [];
     let rank = 0, lastVotes = null;
-    return data.map((d, i) => {
-      if (d[1] !== lastVotes) { rank = i + 1; lastVotes = d[1]; }
-      return { name: d[0], votes: d[1], rank };
-    });
+    for (const [name, votes] of sorted) {
+      if (votes !== lastVotes) { rank++; lastVotes = votes; }
+      if (rank > 4) break;
+      out.push({ name, votes, rank });
+    }
+    return out;
   }
-  const ranked = withRanks(top5);
+  const ranked = top4DenseRank(q.data);
+  const top5Max = ranked[0].votes;
   // Mark which ranks are shared (tied)
   const rankCounts = ranked.reduce((acc, r) => (acc[r.rank] = (acc[r.rank] || 0) + 1, acc), {});
 
@@ -1332,7 +1328,7 @@ DATA.forEach((q, qi) => {
       </div>
       <div class="h2h-margin">${marginText}</div>
       <div class="chart-area">
-        <div class="chart-label">Top 5</div>
+        <div class="chart-label">Top 4</div>
         <div class="bar-chart">${buildBarRows(ranked, top5Max, i => i===0?'var(--accent-pink)':i===1?'var(--accent-blue)':COLORS_POOL[(i+2)%COLORS_POOL.length])}
         </div>
       </div>`;
@@ -1383,7 +1379,7 @@ DATA.forEach((q, qi) => {
       </div>
       ${q.tag ? `<div class="h2h-note">${q.tag}</div>` : ''}
       <div class="chart-area">
-        <div class="chart-label">Top 5</div>
+        <div class="chart-label">Top 4</div>
         <div class="bar-chart">${buildBarRows(ranked, top5Max, i => COLORS_POOL[i%COLORS_POOL.length])}
         </div>
       </div>`;
